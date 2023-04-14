@@ -20,6 +20,7 @@ import {
 export class CompendiumComponent {
   otherLinks = [
     { title: 'Shadow List', link: 'shadows' },
-    { title: 'Recipe Generator', link: 'recipes' }
+    { title: 'Recipe Generator', link: 'recipes' },
+    { title: 'Better Recipe Generator', link: 'better_recipes' },
   ];
 }

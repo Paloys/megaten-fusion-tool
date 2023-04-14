@@ -11,6 +11,8 @@ import { RecipeGeneratorContainerComponent } from './components/recipe-generator
 
 import { SmtFissionTableComponent } from '../compendium/components/smt-fission-table.component';
 import { SmtFusionTableComponent } from '../compendium/components/smt-fusion-table.component';
+import { BetterRecipeGeneratorComponent } from './components/better-recipe-generator/better-recipe-generator.component';
+import {SharedCompendiumModule} from "../compendium/compendium.module";
 
 const compendiumRoutes: Routes = [
   { path: '', redirectTo: 'personas', pathMatch: 'full' },
@@ -72,6 +74,10 @@ const compendiumRoutes: Routes = [
       {
         path: 'settings',
         component: DemonDlcSettingsContainerComponent
+      },
+      {
+        path: 'better_recipes',
+        component: BetterRecipeGeneratorComponent,
       }
     ]
   },
@@ -83,7 +89,10 @@ const compendiumRoutes: Routes = [
 ];
 
 @NgModule({
-  imports: [ RouterModule.forChild(compendiumRoutes) ],
-  exports: [ RouterModule ]
+  imports: [RouterModule.forChild(compendiumRoutes), SharedCompendiumModule],
+  exports: [ RouterModule ],
+  declarations: [
+    BetterRecipeGeneratorComponent
+  ]
 })
 export class CompendiumRoutingModule { }
