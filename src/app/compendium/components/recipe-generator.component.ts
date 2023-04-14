@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, Input, OnChanges } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 
 import { Demon, Skill, FusionRecipe, Compendium, SquareChart, RecipeGeneratorConfig } from '../../compendium/models';
 import { createSkillsRecipe } from '../models/recipe-generator';
@@ -118,7 +118,7 @@ export class RecipeGeneratorComponent implements OnChanges {
   demons: { [race: string]: Demon[] } = {};
   skills: { [elem: string]: Skill[] } = {};
   learnedBy: { [skill: string]: Demon[] } = {};
-  form: FormGroup;
+  form: UntypedFormGroup;
   recipe: FusionRecipe;
   recipeLeft: string[];
   recipeRight: string[];
@@ -136,7 +136,7 @@ export class RecipeGeneratorComponent implements OnChanges {
     effect: '', target: '', level: 0, learnedBy: [{ demon: '-', level: 0 }]
   };
 
-  constructor(private fb: FormBuilder) { this.createForm(); }
+  constructor(private fb: UntypedFormBuilder) { this.createForm(); }
 
   ngOnChanges() { this.initDropdowns(); }
 
@@ -162,12 +162,12 @@ export class RecipeGeneratorComponent implements OnChanges {
     });
   }
 
-  setIngredElem(ingred: FormGroup) {
+  setIngredElem(ingred: UntypedFormGroup) {
     ingred.controls.skill.setValue(this.skills[ingred.controls.elem.value][0]);
     this.setIngredDemon(ingred);
   }
 
-  setIngredDemon(ingred: FormGroup) {
+  setIngredDemon(ingred: UntypedFormGroup) {
     const searchSkill: boolean = ingred.controls.searchSkill.value;
     const demon: Demon[] = searchSkill ? this.learnedBy[ingred.controls.skill.value.name] : this.demons[ingred.controls.race.value];
     ingred.controls.demon.setValue(demon[0]);

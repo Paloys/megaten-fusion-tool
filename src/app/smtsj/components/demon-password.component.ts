@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, Output, EventEmitter} from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
 
 import { PasswordEncodings } from '../models/constants';
 
@@ -20,7 +20,7 @@ import { PasswordEncodings } from '../models/constants';
 export class DemonPasswordComponent {
   @Output() passwordBytes = new EventEmitter<number[]>();
 
-  form: FormGroup;
+  form: UntypedFormGroup;
   isRedux = false;
 
   engRegex: RegExp;
@@ -28,7 +28,7 @@ export class DemonPasswordComponent {
   engBase64: { [char: string]: number; };
   japBase64: { [char: string]: number; };
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: UntypedFormBuilder) {
     this.createForm();
   }
 

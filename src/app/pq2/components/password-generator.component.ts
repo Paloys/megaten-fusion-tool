@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, Input, OnInit, OnChanges, OnDestroy } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 
@@ -122,7 +122,7 @@ export class PasswordGeneratorComponent implements OnChanges {
   skills: { [elem: string]: Skill[] } = {};
   dcodes: { [code: number]: Demon } = {};
   scodes: { [code: number]: Skill } = {};
-  form: FormGroup;
+  form: UntypedFormGroup;
 
   range99 = Array(99);
   range299 = Array(299);
@@ -135,7 +135,7 @@ export class PasswordGeneratorComponent implements OnChanges {
     learnedBy: [], transfer: []
   };
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: UntypedFormBuilder) {
     this.createForm();
   }
 
