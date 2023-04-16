@@ -34,6 +34,15 @@ table {
   padding-bottom: 3em;
 }
 
+.mermaid-table {
+  width: 40%;
+}
+
+.mermaid>svg {
+  width: 100%;
+  max-width: none !important;
+}
+
 .position-sticky {
   position: -webkit-sticky;
   position: sticky;

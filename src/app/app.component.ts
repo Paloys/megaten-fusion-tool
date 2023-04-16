@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router, Event, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import mermaid from "mermaid";
 
 @Component({
   selector: 'app-root',
@@ -63,6 +64,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.router.events.subscribe(v => this.interceptNavigation(v));
+    mermaid.initialize({ startOnLoad: true, securityLevel: 'loose', flowchart: { useMaxWidth: false } });
   }
 
   interceptNavigation(event: Event) {

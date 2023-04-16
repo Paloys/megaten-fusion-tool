@@ -3,6 +3,7 @@ import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 
 import { Demon, Skill, FusionRecipe, Compendium, SquareChart, RecipeGeneratorConfig } from '../../compendium/models';
 import { createSkillsRecipe } from '../models/recipe-generator';
+import mermaid from "mermaid";
 
 @Component({
   selector: 'app-recipe-generator',
@@ -80,7 +81,7 @@ import { createSkillsRecipe } from '../models/recipe-generator';
           </tr>
         </ng-container>
       </table>
-      <table *ngIf="recipe" class="entry-table">
+      <table *ngIf="recipe && !better" class="entry-table">
         <tr><th colspan="2" class="title">Fusion Recipe</th></tr>
         <tr><th>Left Chain</th><th>Right Chain</th></tr>
         <tr>
@@ -97,6 +98,14 @@ import { createSkillsRecipe } from '../models/recipe-generator';
           <ng-container *ngIf="!recipe.stepR.length">No recipes found</ng-container>
         </td></tr>
       </table>
+      <table *ngIf="flowchart && better" class="entry-table mermaid-table">
+        <tr><th colspan="2" class="title">Fusion Recipe</th></tr>
+        <tr><th class="mermaid-holder">
+          <div class="mermaid">
+            {{ flowchart }}
+          </div>
+        </th></tr>
+      </table>
     </form>
   `,
   styles: [`
@@ -110,9 +119,10 @@ export class RecipeGeneratorComponent implements OnChanges {
   @Input() compendium: Compendium;
   @Input() squareChart: SquareChart;
   @Input() recipeConfig: RecipeGeneratorConfig;
+  @Input() better = false;
 
   internalMaxSkills = 9;
-  range99 = Array(99);
+  range99 = [...Array(99)].map((_, i) => i);
   races: string[];
   elems: string[];
   demons: { [race: string]: Demon[] } = {};
@@ -124,6 +134,7 @@ export class RecipeGeneratorComponent implements OnChanges {
   recipeRight: string[];
   recipeResult: string[];
   resultSkills: string[];
+  flowchart: string;
 
   blankDemon: Demon = {
     name: '-', race: '-', lvl: 0, currLvl: 0, price: 0, inherits: 0,
@@ -181,10 +192,8 @@ export class RecipeGeneratorComponent implements OnChanges {
       const slvl = this.compendium.getDemon(demon).skills[skill];
       skillRef[demon].push(skill + (slvl ? ` (${slvl})` : ''));
     }
-
-    this.recipe = recipe;
-    this.recipeLeft = this.decodeRecipechain(recipe.chain1, skillRef);
-    this.recipeRight = this.decodeRecipechain(recipe.chain2, skillRef);
+    this.recipeLeft = this.decodeRecipeChain(recipe.chain1, skillRef);
+    this.recipeRight = this.decodeRecipeChain(recipe.chain2, skillRef);
     this.resultSkills = [];
     this.recipeResult = [];
 
@@ -192,15 +201,21 @@ export class RecipeGeneratorComponent implements OnChanges {
       this.recipeResult.push(skillRef[result] ? `${result} [${skillRef[result].join(', ')}]` : result);
     }
 
+    if (!this.better) {
+      this.recipe = recipe;
+    }
     for (const [skill, slvl] of Object.entries(this.compendium.getDemon(recipe.result).skills)
       .filter(s => s[1] < 2000)
       .sort((a, b) => a[1] - b[1])
-    ) {
+      ) {
       this.resultSkills.push(skill + (slvl ? ` (${slvl})` : ''));
+    }
+    if (this.better) {
+      this.createFlowchart(recipe);
     }
   }
 
-  private decodeRecipechain(chain: string[], skillRef: { [demon: string]: string[] } ): string[] {
+  private decodeRecipeChain(chain: string[], skillRef: { [demon: string]: string[] } ): string[] {
     const steps = [];
 
     for (let i = 0; i < chain.length - 2; i += 2) {
@@ -210,6 +225,54 @@ export class RecipeGeneratorComponent implements OnChanges {
     }
 
     return steps;
+  }
+
+  private async createFlowchart(chain: FusionRecipe) {
+    let temp: string[] = ["%%{init: { 'theme': 'base', 'themeVariables' : {'fontSize': '10px', 'primaryColor': '#282828', 'primaryBorderColor': '#F41000', 'primaryTextColor': '#EEEEEE', 'lineColor': '#EEEEEE', 'secondaryColor': '#1B1B1BCC'} }}%%",
+      "graph BT"];
+    temp.push(`A["${this.recipeResult.join(' x ')} = ${chain.result}\n[${this.resultSkills.join(' ')}]"]`);
+
+    for (let i = this.recipeLeft.length - 1; i >= 0 ; i--) {
+      temp.push(`B${i}["${this.recipeLeft[i]}"]`);
+    }
+
+    for (let i = this.recipeRight.length - 1; i >= 0 ; i--) {
+      temp.push(`C${i}["${this.recipeRight[i]}"]`);
+    }
+
+
+    for (let i = 0; i < this.recipeLeft.length; i++) {
+      if (i == 0) {
+        temp.push(`B${this.recipeLeft.length - 1} --> A`);
+      }
+      else {
+        temp.push(`B${i - 1} --> B${i}`);
+      }
+    }
+
+    for (let i = 0; i < this.recipeRight.length; i++) {
+      if (i == 0) {
+        temp.push(`C${this.recipeRight.length - 1} --> A`);
+      }
+      else {
+        temp.push(`C${i - 1} --> C${i}`);
+      }
+    }
+
+    this.flowchart = temp.join("\n");
+    document.getElementsByClassName("mermaid")[0]?.remove();
+    const mermaidDiv = document.createElement("div");
+    mermaidDiv.className = "mermaid";
+    mermaidDiv.innerHTML = this.flowchart;
+    if (document.getElementsByClassName("mermaid-table")[0] && document.getElementsByClassName("mermaid-table")[0] instanceof HTMLElement) {
+      const tr = <HTMLTableElement> document.getElementsByClassName("mermaid-table")[0];
+      tr.style.width = `${28 + (!this.recipeRight.length ? 0 : 25) + (!this.recipeLeft.length ? 0 : 25)}%`;
+    }
+    document.getElementsByClassName("mermaid-holder")[0]?.appendChild(mermaidDiv);
+    try {
+      await mermaid.init({startOnLoad: true});
+    }
+    catch (e) {}
   }
 
   initDropdowns() {
@@ -265,7 +328,7 @@ export class RecipeGeneratorComponent implements OnChanges {
         excludeElems.push(inheritElems[inheritElems.length - i - 1]);
       }
     }
-    
+
     this.skills[this.blankSkill.element] = [this.blankSkill].concat(innateSkills);
     this.elems = this.recipeConfig.skillElems.filter(e => this.skills[e] && !excludeElems.includes(e));
     this.form.patchValue({

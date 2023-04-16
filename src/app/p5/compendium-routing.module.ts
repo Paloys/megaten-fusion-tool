@@ -11,7 +11,7 @@ import { RecipeGeneratorContainerComponent } from './components/recipe-generator
 
 import { SmtFissionTableComponent } from '../compendium/components/smt-fission-table.component';
 import { SmtFusionTableComponent } from '../compendium/components/smt-fusion-table.component';
-import { BetterRecipeGeneratorComponent } from './components/better-recipe-generator/better-recipe-generator.component';
+import { BetterRecipeGeneratorComponent } from './components/better-recipe-generator.component';
 import {SharedCompendiumModule} from "../compendium/compendium.module";
 
 const compendiumRoutes: Routes = [
